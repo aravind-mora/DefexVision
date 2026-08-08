@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}DefexVision — AI Defect Detection for Mouse Chips{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="hero-badge">
+    <span class="badge-chip"></span> AI Quality Inspection &middot; YOLOv8 Engine
+  </div>
+  <h1 class="hero-title">
+    Detect micro-defects on
+    <span class="grad-red">mouse&nbsp;chips</span>
+    with <span class="grad-blue">computer&nbsp;vision</span>
+  </h1>
+  <p class="hero-sub">
+    Upload a chip image. DefexVision preprocesses it (crop, denoise, enhance,
+    deskew), runs a YOLOv8 model and shows you every defect — scratches,
+    cracks, contamination, solder bridges and more — in real time.
+  </p>
+  <div class="hero-actions">
+    <a href="{% url 'scan' %}" class="btn btn-primary btn-lg">
+      <span class="scan-icon">▣</span> Start a Scan
+    </a>
+    <a href="{% url 'dashboard' %}" class="btn btn-ghost btn-lg">View Dashboard</a>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-card"><b>{{ stats.total|default:0 }}</b><span>Inspections</span></div>
+    <div class="stat-card"><b class="t-green">{{ stats.passed|default:0 }}</b><span>Passed</span></div>
+    <div class="stat-card"><b class="t-red">{{ stats.failed|default:0 }}</b><span>Failed</span></div>
+    <div class="stat-card"><b>{{ stats.defects|default:0 }}</b><span>Defects found</span></div>
+  </div>
+</section>
+
+<section class="feature-grid">
+  <div class="feature">
+    <div class="feature-ic ic-red">▣</div>
+    <h3>Smart Preprocessing</h3>
+    <p>Python + OpenCV pipeline: auto-crop the chip, denoise, enhance contrast
+       with CLAHE and deskew before inference.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-ic ic-blue">◉</div>
+    <h3>YOLOv8 Inference</h3>
+    <p>Fast object detection served by a Flask microservice. Just drop your
+       <code>yolo8m (1).pt</code> weights into <code>models/</code>.</p>
+  </div>
+  <div class="feature">
+    <div class="feature-ic ic-violet">✧</div>
+    <h3>SQL + NoSQL</h3>
+    <p>Relational records in SQL, rich analysis JSON in MongoDB — or a local
+       JSON fallback when Mongo isn't running.</p>
+  </div>
+</section>
+
+<section class="recent">
+  <div class="section-head">
+    <h2>Recent inspections</h2>
+    <a href="{% url 'history' %}" class="link">View all →</a>
+  </div>
+  {% if recent %}
+    <div class="result-grid">
+      {% for r in recent %}
+        <a href="{% url 'detail' r.pk %}" class="result-card">
+          {% if r.result_original %}
+            <img src="{{ r.result_original.url }}" alt="{{ r.filename }}" />
+          {% endif %}
+          <div class="result-meta">
+            <span class="filename">{{ r.filename }}</span>
+            <span class="badge badge-{{ r.status }}">{{ r.status }}</span>
+            <span class="muted">{{ r.created_at|date:"M d, H:i" }}</span>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">
+      <div class="empty-ic">⬆</div>
+      <p>No inspections yet. Upload your first mouse-chip image to begin.</p>
+      <a href="{% url 'scan' %}" class="btn btn-primary">Upload an image</a>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}

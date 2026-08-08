@@ -1,0 +1,51 @@
+# Render blueprint for DefexVision
+# Deploy on https://render.com by connecting your GitHub repo and picking this
+# file, OR create two Web Services manually following the comments.
+services:
+  # ---- 1) Django web app ----
+  - type: web
+    name: defexvision-web
+    runtime: python
+    buildCommand: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+    startCommand: gunicorn defexvision.wsgi:application --bind 0.0.0.0:8000 --workers 2 --timeout 120
+    healthCheckPath: /health/
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_ALLOWED_HOSTS
+        value: "your-app-name.onrender.com"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: INFERENCE_MODE
+        value: "flask"
+      - key: FLASK_API_URL
+        value: "http://defexvision-inference.onrender.com"
+      - key: MODEL_PATH
+        value: "models/yolo8m (1).pt"
+      - key: PREPROCESS_MODE
+        value: "raw"
+      - key: MONGO_URI
+        value: ""   # fill with your MongoDB Atlas connection string
+      - key: MONGO_DB
+        value: "defexvision"
+
+  # ---- 2) Flask inference API ----
+  - type: web
+    name: defexvision-inference
+    runtime: python
+    buildCommand: |
+      python -m pip install --upgrade pip
+      pip install -r requirements.txt
+      pip install ultralytics torch
+    startCommand: gunicorn "inference_api.wsgi:app" --bind 0.0.0.0:5001 --workers 1 --timeout 180
+    envVars:
+      - key: MODEL_PATH
+        value: "models/yolo8m (1).pt"
+      - key: MODEL_CONF
+        value: "0.25"
+      - key: MODEL_IOU
+        value: "0.45"

@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Inspection #{{ inspection.pk }} — DefexVision{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Inspection #{{ inspection.pk }}</h1>
+    <p class="muted">{{ inspection.filename }} · {{ inspection.created_at|date:"M d, Y H:i:s" }}</p>
+  </div>
+  <div class="badge badge-{{ inspection.status }} badge-lg">{{ inspection.status|upper }}</div>
+</div>
+
+<div class="summary-strip">
+  <div class="sum"><b>{{ inspection.total_detections }}</b><span>Detections</span></div>
+  <div class="sum"><b class="{{ inspection.is_fail|yesno:'t-red,t-green' }}">{{ inspection.defects_found }}</b><span>Defects</span></div>
+  <div class="sum"><b>{{ inspection.max_confidence|floatformat:2 }}</b><span>Max conf.</span></div>
+  <div class="sum"><b>{{ inspection.inference_mode|default:"—" }}</b><span>Mode</span></div>
+</div>
+
+{% if analysis %}
+  <div class="alert alert-info">
+    NoSQL analysis doc <code>{{ analysis_id|truncatechars:16 }}</code>
+    stored via <b>{{ analysis.backend }}</b> backend ·
+    pipeline {{ analysis.pipeline.duration_ms }}ms
+  </div>
+{% endif %}
+
+<div class="result-layout">
+  <div class="panel result-panel">
+    <h3>Annotated result <span class="badge badge-{{ inspection.status }}">{{ inspection.status }}</span></h3>
+    {% if inspection.result_image %}
+      <img src="{{ inspection.result_image.url }}" class="result-img" alt="annotated" />
+    {% endif %}
+    <div class="img-tabs">
+      <button class="img-tab active" data-tab="crop">Annotated (crop)</button>
+      <button class="img-tab" data-tab="original">Annotated (original)</button>
+      <button class="img-tab" data-tab="raw">Raw upload</button>
+    </div>
+    <div class="img-stage active" data-stage="crop">
+      {% if inspection.result_image %}<img src="{{ inspection.result_image.url }}" alt="crop" />{% endif %}
+    </div>
+    <div class="img-stage" data-stage="original">
+      {% if inspection.result_original %}<img src="{{ inspection.result_original.url }}" alt="original" />{% endif %}
+    </div>
+    <div class="img-stage" data-stage="raw">
+      {% if inspection.image %}<img src="{{ inspection.image.url }}" alt="raw" />{% endif %}
+    </div>
+  </div>
+
+  <div class="side">
+    <div class="panel">
+      <h3>Detected defects (SQL)</h3>
+      <ul class="defect-list-col">
+        {% for d in defect_rows %}
+          <li class="def-row">
+            <span class="dot" style="--c:{{ d.color }}"></span>
+            <div>
+              <b>{{ d.label }}</b>
+              <span class="sev sev-{{ d.severity }}">{{ d.severity }}</span>
+            </div>
+            <span class="conf">{{ d.confidence|floatformat:2 }}</span>
+          </li>
+        {% empty %}
+          <li class="muted">No defects detected — chip passed.</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="panel">
+      <h3>Preprocessing stages (Python + OpenCV)</h3>
+      {% if analysis and analysis.pipeline %}
+        <div class="stage-thumbs">
+          {% for key, path in analysis.pipeline.items %}
+            {% if key != 'bbox' and key != 'angle' and key != 'duration_ms' %}
+              <figure class="stage">
+                <img src="/media/{{ path }}" alt="{{ key }}" loading="lazy" />
+                <figcaption>{{ key }}</figcaption>
+              </figure>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="action-bar">
+  <a href="{% url 'scan' %}" class="btn btn-primary">New scan</a>
+  <a href="{% url 'history' %}" class="btn btn-ghost">Back to history</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelectorAll('.img-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.img-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const target = tab.dataset.tab;
+      document.querySelectorAll('.img-stage').forEach(s => s.classList.toggle('active', s.dataset.stage === target));
+    });
+  });
+</script>
+{% endblock %}

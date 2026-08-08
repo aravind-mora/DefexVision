@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}New Scan — DefexVision{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1>New inspection</h1>
+  <p class="muted">Upload an image of a mouse chip / PCB. It will be preprocessed, analysed and annotated.</p>
+</div>
+
+<form id="scanForm" class="scan-form" method="post" action="{% url 'scan' %}" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  <div class="upload-zone" id="dropZone">
+    <input type="file" name="image" id="fileInput" accept="image/*" hidden />
+    <div class="upload-inner">
+      <div class="upload-ic">▲</div>
+      <p class="upload-title">Drag &amp; drop your chip image here</p>
+      <p class="muted">or <button type="button" class="link-btn" id="browseBtn">browse files</button> &nbsp;·&nbsp; JPG, PNG up to 25MB</p>
+      <img id="preview" class="preview" alt="preview" hidden />
+    </div>
+  </div>
+
+  <div class="scan-options">
+    <label class="opt">
+      <span>Inference mode</span>
+      <select name="mode" id="modeSelect">
+        <option value="auto">Auto (Flask → demo)</option>
+        <option value="flask">Flask microservice</option>
+        <option value="demo">Demo (no model)</option>
+      </select>
+    </label>
+    <label class="opt">
+      <span>Confidence threshold</span>
+      <input type="range" id="confSlider" min="0.1" max="0.9" step="0.05" value="0.25" />
+      <output id="confOut">0.25</output>
+    </label>
+  </div>
+
+  <button type="submit" class="btn btn-primary btn-lg btn-block" id="submitBtn">
+    Analyze chip <span class="arrow">→</span>
+  </button>
+  <div class="processing-hint" id="processingHint" hidden>
+    <div class="spinner"></div> Preprocessing &amp; running detection…
+  </div>
+</form>
+
+<section class="defect-list">
+  <div class="section-head"><h2>What the model looks for</h2></div>
+  <div class="chips">
+    {% for c in defect_classes %}
+      <span class="chip"><i class="dot" style="--c:{{ c.color.0 }},{{ c.color.1 }},{{ c.color.2 }}"></i>{{ c.label }}</span>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const zone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const browseBtn = document.getElementById('browseBtn');
+  const preview = document.getElementById('preview');
+
+  browseBtn.addEventListener('click', () => fileInput.click());
+  zone.addEventListener('click', (e) => { if (e.target.tagName !== 'INPUT') fileInput.click(); });
+  zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('drag'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault(); zone.classList.remove('drag');
+    if (e.dataTransfer.files.length) fileInput.files = e.dataTransfer.files, showPreview();
+  });
+  fileInput.addEventListener('change', showPreview);
+
+  function showPreview() {
+    const f = fileInput.files[0];
+    if (!f) return;
+    preview.src = URL.createObjectURL(f);
+    preview.hidden = false;
+  }
+
+  const conf = document.getElementById('confSlider');
+  const confOut = document.getElementById('confOut');
+  conf.addEventListener('input', () => confOut.value = conf.value);
+  conf.addEventListener('input', () => confOut.textContent = conf.value);
+
+  const form = document.getElementById('scanForm');
+  const hint = document.getElementById('processingHint');
+  form.addEventListener('submit', () => {
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.style.opacity = '.6';
+    hint.hidden = false;
+  });
+</script>
+{% endblock %}

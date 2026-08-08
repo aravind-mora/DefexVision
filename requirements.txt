@@ -1,0 +1,18 @@
+# DefexVision - AI defect detection for mouse chips
+# Python web stack: Django (web) + Flask (inference API) + SQL + NoSQL (MongoDB)
+
+Django>=5.0,<6.0
+Flask>=3.0,<4.0
+numpy>=1.26
+opencv-python-headless>=4.9
+Pillow>=10.0
+pymongo>=4.6
+python-dotenv>=1.0
+
+# --- Production web/server ---
+gunicorn>=21.0          # Django + Flask production WSGI server
+whitenoise>=6.6         # serve static files in production without a web server
+
+# --- Optional: enable REAL YOLOv8 inference (only needed for real model) ---
+# ultralytics>=8.0
+# torch>=2.1

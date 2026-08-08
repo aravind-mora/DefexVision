@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}DefexVision{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a class="brand" href="{% url 'home' %}">
+        <img class="brand-logo" src="{% static 'img/logo.png' %}" alt="DefexVision" />
+        <img class="brand-text-img" src="{% static 'img/logo-text.png' %}" alt="DefexVision" />
+      </a>
+
+      <nav class="nav-links">
+        <a href="{% url 'home' %}" class="{% if nav == 'home' %}active{% endif %}">Home</a>
+        <a href="{% url 'scan' %}" class="{% if nav == 'scan' %}active{% endif %}">Scan</a>
+        <a href="{% url 'dashboard' %}" class="{% if nav == 'dashboard' %}active{% endif %}">Dashboard</a>
+        <a href="{% url 'history' %}" class="{% if nav == 'history' %}active{% endif %}">History</a>
+      </nav>
+
+      <a class="btn btn-primary btn-sm" href="{% url 'scan' %}">
+        <span class="pulse-dot"></span> New Scan
+      </a>
+    </div>
+  </header>
+
+  {% if messages %}
+    <div class="container messages">
+      {% for m in messages %}
+        <div class="alert alert-{{ m.tags|default:'info' }}">{{ m }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <main class="container page">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span class="brand-text">
+        <span class="brand-defex">Defex</span><span class="brand-vision">Vision</span>
+      </span>
+      <span class="muted">AI-powered defect detection for mouse chips &middot; Python · Django · Flask · SQL · NoSQL</span>
+    </div>
+  </footer>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
