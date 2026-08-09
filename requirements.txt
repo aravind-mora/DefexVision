@@ -8,6 +8,11 @@ opencv-python-headless>=4.9
 Pillow>=10.0
 pymongo>=4.6
 python-dotenv>=1.0
+gdown>=5.0              # reliable Google Drive downloads (for the model)
+
+# --- Production web/server ---
+gunicorn>=21.0          # Django + Flask production WSGI server
+whitenoise>=6.6         # serve static files in production without a web server
 
 # --- Optional: enable REAL YOLOv8 inference (only needed for real model) ---
 # ultralytics>=8.0

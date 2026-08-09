@@ -102,9 +102,20 @@ def detail(request, pk):
 @require_http_methods(["GET", "POST"])
 def scan(request):
     if request.method == "GET":
+        # Sample images in static/img/samples/ that users can click to test.
+        samples_dir = os.path.join(settings.BASE_DIR, "static", "img", "samples")
+        samples = []
+        if os.path.isdir(samples_dir):
+            exts = (".jpg", ".jpeg", ".png", ".webp")
+            names = sorted(
+                f for f in os.listdir(samples_dir)
+                if f.lower().endswith(exts)
+            )
+            samples = [f"img/samples/{n}" for n in names]
         return render(request, "scan.html", {
             "nav": "scan",
             "defect_classes": defects.all_classes(),
+            "samples": samples,
         })
 
     if "image" not in request.FILES:

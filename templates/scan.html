@@ -45,6 +45,21 @@
   </div>
 </form>
 
+{% if samples %}
+<section class="samples">
+  <div class="section-head"><h2>Or try a sample image</h2></div>
+  <p class="muted small">Click a sample to load it into the scan form, then press <b>Analyze chip</b>.</p>
+  <div class="sample-grid">
+    {% for s in samples %}
+      <button type="button" class="sample-card" data-src="{% static s %}">
+        <img src="{% static s %}" alt="sample" loading="lazy" />
+        <span class="sample-name">{{ s|cut:"img/samples/" }}</span>
+      </button>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
 <section class="defect-list">
   <div class="section-head"><h2>What the model looks for</h2></div>
   <div class="chips">
@@ -78,7 +93,27 @@
     preview.src = URL.createObjectURL(f);
     preview.hidden = false;
   }
-
+  // Sample images: clicking one loads it into the file input + preview so the
+  // user can submit it directly.
+  document.querySelectorAll('.sample-card').forEach(card => {
+    card.addEventListener('click', async () => {
+      const src = card.dataset.src;
+      try {
+        const res = await fetch(src);
+        const blob = await res.blob();
+        const name = src.split('/').pop();
+        const file = new File([blob], name, { type: blob.type || 'image/png' });
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        fileInput.files = dt.files;
+        preview.src = URL.createObjectURL(file);
+        preview.hidden = false;
+        card.classList.add('selected');
+      } catch (e) {
+        console.warn('Could not load sample', e);
+      }
+    });
+  });
   const conf = document.getElementById('confSlider');
   const confOut = document.getElementById('confOut');
   conf.addEventListener('input', () => confOut.value = conf.value);

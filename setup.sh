@@ -38,6 +38,34 @@ fi
 echo "==> Running database migrations"
 python manage.py migrate
 
+# ---- Auto-download the model if a MODEL_URL is configured --------------
+# Load MODEL_URL / MODEL_PATH from .env so new users get the model without
+# having to find the file. If the download fails, we still continue (the app
+# can run in demo mode) but tell the user.
+if [ -f ".env" ]; then
+  set -a
+  # shellcheck disable=SC1091
+  source .env
+  set +a
+fi
+
+MODEL_PATH="${MODEL_PATH:-models/yolo8m (1).pt}"
+if [ ! -f "$MODEL_PATH" ]; then
+  if [ -n "$MODEL_URL" ]; then
+    echo "==> Downloading model (this can take a minute)..."
+    if python download_model.py "$MODEL_URL"; then
+      echo "==> Model downloaded."
+    else
+      echo "==> [WARN] Model download failed. The app will run in DEMO mode."
+      echo "    You can retry later with: python download_model.py \"\$MODEL_URL\""
+    fi
+  else
+    echo "==> [WARN] No MODEL_URL set and no model found. Running in DEMO mode."
+  fi
+else
+  echo "==> Model found: $MODEL_PATH"
+fi
+
 echo "============================================================="
 echo " Setup complete!"
 echo " Next step: run your app with:   bash run.sh"
