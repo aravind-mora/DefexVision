@@ -1,10 +1,11 @@
 # DefexVision
 An AI-powered defect detection system using YOLOv8, OpenCV
 <p align="center">
-  <img src="static/img/logo.png" alt="DefexVision logo" width="160" />
-</p>
-<p align="center">
-  <img src="static/img/logo-text.png" alt="DefexVision text" width="160" />
+  <span style="display:inline-block; text-align:center;">
+    <img src="static/img/logo.png" alt="DefexVision logo" width="160" />
+    <br />
+    <img src="static/img/logo-text.png" alt="DefexVision" width="160" style="margin-top:8px; margin-left:44px;" />
+  </span>
 </p>
 
 <h3 align="center">An AI-powered defect detection system using YOLOv8 &amp; OpenCV</h3>
