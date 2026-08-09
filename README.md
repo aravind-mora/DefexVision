@@ -4,7 +4,7 @@ An AI-powered defect detection system using YOLOv8, OpenCV
   <span style="display:inline-block; text-align:center;">
     <img src="static/img/logo.png" alt="DefexVision logo" width="160" />
     <br />
-    <img src="static/img/logo-text.png" alt="DefexVision" width="160" style="margin-top:8px; margin-left:44px;" />
+    <img src="static/img/logo-text.png" alt="DefexVision" width="160" style="margin-top:8px; margin-left:80px;" />
   </span>
 </p>
 
