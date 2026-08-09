@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — DefexVision{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1>Dashboard</h1>
+  <p class="muted">Quality overview across all inspections.</p>
+</div>
+
+<div class="stat-row">
+  <div class="stat-card lg"><b>{{ stats.total|default:0 }}</b><span>Total inspections</span></div>
+  <div class="stat-card lg ok"><b>{{ stats.passed|default:0 }}</b><span>Passed</span></div>
+  <div class="stat-card lg bad"><b>{{ stats.failed|default:0 }}</b><span>Failed</span></div>
+  <div class="stat-card lg"><b>{{ stats.defects|default:0 }}</b><span>Total defects</span></div>
+  <div class="stat-card lg"><b>{{ stats.total_ok|default:0 }}%</b><span>Pass rate</span></div>
+</div>
+
+<div class="dash-cols">
+  <div class="panel">
+    <h3>Defects by severity</h3>
+    <div class="bar-list">
+      {% if severity %}
+        {% for k, v in severity.items %}
+          <div class="bar-row">
+            <span class="bar-label">{{ k }}</span>
+            <div class="bar-track">
+              <div class="bar-fill sev-{{ k }}" style="width:{{ v }}%"></div>
+            </div>
+            <span class="bar-val">{{ v }}</span>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="muted">No data yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3>Defect types</h3>
+    <div class="tag-cloud">
+      {% if labels %}
+        {% for label, count in labels.items %}
+          <span class="tag" style="--sz:{{ count|add:8 }}px">{{ label }} <b>{{ count }}</b></span>
+        {% endfor %}
+      {% else %}
+        <p class="muted">No data yet.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="panel">
+  <h3>Latest inspections</h3>
+  <table class="table">
+    <thead><tr><th>ID</th><th>Image</th><th>Status</th><th>Defects</th><th>Conf.</th><th>Mode</th><th>Time</th></tr></thead>
+    <tbody>
+      {% for r in inspections %}
+        <tr onclick="location.href='{% url 'detail' r.pk %}'" class="clickable">
+          <td>#{{ r.pk }}</td>
+          <td class="td-file">{{ r.filename }}</td>
+          <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+          <td>{{ r.defects_found }}</td>
+          <td>{{ r.max_confidence|floatformat:2 }}</td>
+          <td class="muted">{{ r.inference_mode|default:"—" }}</td>
+          <td class="muted">{{ r.created_at|date:"M d H:i" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="7" class="muted">No inspections yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p class="muted small">NoSQL backend: <b>{{ nosql_backend.backend }}</b> · SQL storage: active</p>
+{% endblock %}

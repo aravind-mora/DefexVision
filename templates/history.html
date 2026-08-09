@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}History — DefexVision{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <h1>Inspection history</h1>
+  <p class="muted">{{ inspections.count }} record(s) in the SQL database.</p>
+</div>
+
+{% if inspections %}
+<table class="table">
+  <thead><tr><th>ID</th><th>Preview</th><th>Image</th><th>Status</th><th>Defects</th><th>Conf.</th><th>Mode</th><th>Time</th><th></th></tr></thead>
+  <tbody>
+    {% for r in inspections %}
+      <tr class="clickable" onclick="location.href='{% url 'detail' r.pk %}'">
+        <td>#{{ r.pk }}</td>
+        <td class="td-thumb">
+          {% if r.result_original %}
+            <img src="{{ r.result_original.url }}" alt="" />
+          {% endif %}
+        </td>
+        <td class="td-file">{{ r.filename }}</td>
+        <td><span class="badge badge-{{ r.status }}">{{ r.status }}</span></td>
+        <td>{{ r.defects_found }}</td>
+        <td>{{ r.max_confidence|floatformat:2 }}</td>
+        <td class="muted">{{ r.inference_mode|default:"—" }}</td>
+        <td class="muted">{{ r.created_at|date:"M d, Y H:i" }}</td>
+        <td>
+          <form method="post" action="{% url 'delete_inspection' r.pk %}"
+                onsubmit="return confirm('Delete this inspection?')">
+            {% csrf_token %}<button class="link-btn danger">✕</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  <div class="empty-ic">◫</div>
+  <p>No inspections recorded yet.</p>
+  <a href="{% url 'scan' %}" class="btn btn-primary">Start a scan</a>
+</div>
+{% endif %}
+{% endblock %}

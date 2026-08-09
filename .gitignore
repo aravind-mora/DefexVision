@@ -1,0 +1,36 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ---- Secrets / local env ----
+.env
+.env.local
+
+# ---- Django ----
+*.log
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+
+# ---- Media (uploads, processed images, results) ----
+media/uploads/*
+media/processed/*
+media/results/*
+!media/uploads/.gitkeep
+!media/processed/.gitkeep
+!media/results/.gitkeep
+
+# ---- Model weights (too large for GitHub, e.g. yolo8m (1).pt is 51MB) ----
+models/*
+!models/.gitkeep
+*.pt
+*.onnx
+*.engine
+
+# ---- MongoDB / NoSQL local fallback store ----
+scanner/services/nosql_store_data/
+*.json.local
