@@ -33,11 +33,17 @@ bash run.sh       # starts Flask (5001) + Django (8000)
 
 **Windows (Command Prompt):**
 ```bat
-# Create & activate the virtual environment
+# 1.Create & activate the virtual environment
 python -m venv .venv
 .venv\Scripts\activate
+# 2.Install dependencies
 pip install -r requirements.txt
+pip install ultralytics torch gdown
+# 3.Create .env
 copy .env.example .env
+# 4.Download the model automatically
+python download_model.py "https://drive.google.com/file/d/1OdxHVoHfdR44rsSokrHvtu1hLFiyhNEg/view?usp=sharing"
+# 5.Set up the database
 python manage.py migrate
 REM terminal 1:
 python inference_api\app.py
