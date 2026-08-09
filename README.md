@@ -33,6 +33,7 @@ bash run.sh       # starts Flask (5001) + Django (8000)
 
 **Windows (Command Prompt):**
 ```bat
+# Create & activate the virtual environment
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
